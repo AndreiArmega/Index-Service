@@ -1,0 +1,3 @@
+The eighth test file has some unique content.
+Examples of special characters: !, @, #.
+WelcomeWelcome Welcome

@@ -1,0 +1,2 @@
+The third test file is here.
+It has numbers like 123 and symbols like @, #, $.

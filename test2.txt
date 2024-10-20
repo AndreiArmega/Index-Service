@@ -1,0 +1,2 @@
+This is the second test file.
+Words in this file include apple, banana, and cherry.
