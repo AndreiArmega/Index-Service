@@ -21,14 +21,23 @@ public class AdvancedTokenizer implements Tokenizer {
         Pattern advancedPattern = Pattern.compile("\\w+|[^\\w\\s]+");
         matchAndAddTokens(advancedPattern, content, tokens);
 
+        // Extra Pattern: Catch sequences of special characters (e.g., &#@($@#$(@#()
+        Pattern specialSymbolsPattern = Pattern.compile("[^\\w\\s]+");
+        matchAndAddTokens(specialSymbolsPattern, content, tokens);
+
+        // Extra Pattern: Catch symbols followed by words (e.g., ##ceva)
         Pattern symbolsFollowedByWordPattern = Pattern.compile("[#@%$&]+[\\w'-]+");
         matchAndAddTokens(symbolsFollowedByWordPattern, content, tokens);
 
+        // Extra Pattern: Catch words combined with special characters (e.g., Ceva!word)
         Pattern wordWithSymbolsPattern = Pattern.compile("[\\w'-]+[!?.;,:()\"'#$%&*]+[\\w'-]+");
         matchAndAddTokens(wordWithSymbolsPattern, content, tokens);
 
-        Pattern pattern = Pattern.compile(".*");  // Matches any string
-        matchAndAddTokens(pattern, content, tokens);
+        // Final fallback pattern - match any string only if no tokens are found
+        if (tokens.isEmpty()) {
+            Pattern fallbackPattern = Pattern.compile(".*");  // Matches any string
+            matchAndAddTokens(fallbackPattern, content, tokens);
+        }
 
         return tokens;
     }

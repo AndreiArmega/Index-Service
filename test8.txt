@@ -1,4 +1,5 @@
 The eighth test file has some unique content.
 Examples of special characters: !, @, #.
-WelcomeWelcome Welcome
+WelcomeWelcome Welcome #$^#^$^)!&@)*!&(@& 
+aaaa		       #$^#^$^)!&@)*!&(@&
 Ceva!word ##ceva
