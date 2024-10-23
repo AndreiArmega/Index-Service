@@ -1,6 +1,6 @@
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
 class FileIndexer {
@@ -27,24 +27,61 @@ class FileIndexer {
 
     // Index all files in a directory recursively
     public void indexDirectory(Path directoryPath) {
+        int[] indexedFilesCount = {0};
+
         try {
-            Files.walk(directoryPath)
-                    .filter(Files::isRegularFile)
-                    .forEach(filePath -> {
-                        try {
-                            indexFile(filePath);
-                        } catch (IOException e) {
-                            System.out.println("Error indexing file: " + filePath);
+            Files.walkFileTree(directoryPath, new HashSet<>(Arrays.asList(FileVisitOption.FOLLOW_LINKS)),
+                    Integer.MAX_VALUE, new SimpleFileVisitor<Path>() {
+
+                        @Override
+                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                            try {
+                                // Index only regular files
+                                if (Files.isRegularFile(file)) {
+                                    indexFile(file);
+                                    indexedFilesCount[0]++;
+                                }
+                            } catch (IOException e) {
+                                System.err.println("Error indexing file: " + file + " - " + e.getMessage());
+                            }
+                            return FileVisitResult.CONTINUE;
+                        }
+
+                        @Override
+                        public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                            if (exc instanceof AccessDeniedException) {
+                                System.err.println("Access denied to file: " + file);
+                            } else {
+                                System.err.println("Failed to access file: " + file + " - " + exc.getMessage());
+                            }
+                            return FileVisitResult.CONTINUE;
+                        }
+
+                        @Override
+                        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                            System.out.println("Visiting directory: " + dir);
+                            return FileVisitResult.CONTINUE;
+                        }
+
+                        @Override
+                        public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                            if (exc != null) {
+                                System.err.println("Error visiting directory: " + dir + " - " + exc.getMessage());
+                            }
+                            return FileVisitResult.CONTINUE;
                         }
                     });
-            System.out.println("Directory successfully indexed.");
-        } catch (OutOfMemoryError e) {
-            System.err.println("Out of memory! The directory is too large to index.");
-            // Optionally suggest some actions to the user, like clearing memory or reducing files
+
+            System.out.println("Directory successfully indexed. Total files indexed: " + indexedFilesCount[0]);
+
         } catch (IOException e) {
-            System.err.println("An error occurred while indexing the directory: " + e.getMessage());
+            System.err.println("An error occurred while walking the directory tree: " + e.getMessage());
+        } catch(OutOfMemoryError e) {
+            System.err.println("Out of memory while walking the directory tree: " + e.getMessage());
         }
     }
+
+
 
     // Query for files that contain a specific word
     public Set<Path> query(String word) {

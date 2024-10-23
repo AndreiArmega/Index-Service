@@ -1,8 +1,6 @@
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -19,7 +17,7 @@ class ConsoleInterface implements IConsoleInterface {
     public void start() {
         // Index predefined test files
         indexTestFiles();
-
+        Boolean not_invalid= false;
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.println("Choose an option:");
@@ -29,30 +27,40 @@ class ConsoleInterface implements IConsoleInterface {
             System.out.println("4. Exit");
 
             System.out.println("Current directory: " + currentDirectory.toString());
-            System.out.print("> "); // Simple prompt like in Linux terminal
+            System.out.print("> ");
 
             String command = scanner.nextLine().trim();
 
-            // Handle hidden commands or special commands
             if (command.equalsIgnoreCase("show hidden index")) {
                 showHiddenIndex();
+                not_invalid= true;
                 continue;
             }
             if (command.equalsIgnoreCase("explore") || command.equalsIgnoreCase("file explorer") || command.equalsIgnoreCase("explorer")) {
                 openFileExplorer(currentDirectory.toString());
+                not_invalid= true;
                 continue;
             }
-
-            // Handle basic navigation commands
             if (command.startsWith("cd ")) {
                 changeDirectory(command.substring(3).trim()); // Extract path after 'cd'
+                not_invalid= true;
                 continue;
             }
 
             if (command.equals("ls")) {
                 listDirectoryContents();
+                not_invalid= true;
                 continue;
             }
+
+            if(command.equalsIgnoreCase("index this")||
+                    command.equalsIgnoreCase("this") ) {
+
+                fileIndexer.indexDirectory(currentDirectory);
+                not_invalid= true;
+
+            }
+
 
             switch (command) {
                 case "1":
@@ -79,7 +87,7 @@ class ConsoleInterface implements IConsoleInterface {
                 case "3":
                     System.out.print("Enter word to query: ");
                     String word = scanner.nextLine();
-                    Set<Path> files = fileIndexer.query(word); // Assuming query is in FileIndexer
+                    Set<Path> files = fileIndexer.query(word);
                     if (files.isEmpty()) {
                         System.out.println("No files found containing the word '" + word + "'.");
                         System.out.println("Try smaller tokens or switch to advanced");
@@ -93,7 +101,9 @@ class ConsoleInterface implements IConsoleInterface {
                     System.out.println("Exiting.");
                     return;
                 default:
-                    System.out.println("Invalid command.");
+                    if(!not_invalid)
+                      System.out.println("Invalid command.");
+
             }
         }
     }
@@ -144,7 +154,7 @@ class ConsoleInterface implements IConsoleInterface {
     @Override
     public void indexTestFiles() {
         for (int i = 1; i <= 10; i++) {
-            String fileName = "test" + i + ".txt"; // Change this if your files are located in a different directory
+            String fileName = "test" + i + ".txt";
             Path filePath = Paths.get(fileName);
             try {
                 fileIndexer.indexFile(filePath);

@@ -1,4 +1,17 @@
 This is the first test file.
 It contains sample text for indexing.
-Ceva!word ##ceva
-asda
+This is the first test file.
+It contains sample text for indexing.
+This is the first test file.
+It contains sample text for indexing.
+This is the first test file.
+It contains sample text for indexing.
+This is the first test file.
+It contains sample text for indexing.
+Secret!word ##secret
+This is the first test file.
+It contains sample text for indexing.
+This is the first test file.
+It contains sample text for indexing.
+This is the first test file.
+It contains sample text for indexing.
